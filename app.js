@@ -16,10 +16,16 @@ import { Strategy } from 'passport-local'
 import multer from 'multer'
 import dotenv from 'dotenv'
 import { createServer } from 'http'
-
+import expressLayouts from 'express-ejs-layouts'
 dotenv.config()
 
 const app = express()
+
+app.use(expressLayouts)
+app.set('view engine','ejs')
+
+
+
 
 app.use('/', require('./routes/index'))
 app.use('/user', require('./routes/users'))
