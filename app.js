@@ -44,6 +44,6 @@ app.use('/api/users', authRoute)
 // app.use('/', require('./routes/index'))
 // app.use('/users', require('./routes/users'))
 
-const Port = process.env.PORT || 3005
+const Port = process.env.PORT || 5000
 
 app.listen(Port, console.log(`server starts on ${Port}`))

@@ -20,10 +20,7 @@ const registrationValidation = (data) => {
 
 const loginValidation = (data) => {
   const schema = {
-    firstName: joi.string()
-      .required(),
-    lastName: joi.string()
-      .required(),
+
     email: joi.string()
       .required()
       .email(),
