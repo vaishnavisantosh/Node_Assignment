@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken'
 
 const auth = (req, res, next) => {
-  const token = req.header('authentication-token')
+  const token = req.header('authorization')
   if (!token) return res.status(401).send('Access denied')
 
   try {
@@ -12,3 +12,5 @@ const auth = (req, res, next) => {
     res.status(400).send('invalid Token')
   }
 }
+
+module.exports = auth
