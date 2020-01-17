@@ -3,11 +3,11 @@
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
+import express from 'express';
 import User from '../model/User.model';
 import UserActivity from '../model/UserActivity.model';
-import { registrationValidation, loginValidation } from '../validator/validator';
-
-const express = require('express');
+import { registrationValidation, loginValidation } from '../lib/validator';
+// const express = require('express');
 
 const router = express.Router();
 dotenv.config({ path: './.env' });
@@ -51,7 +51,7 @@ router.post('/login', async (req, res) => {
   console.log(req.headers);
   console.log(req.connection.remoteAddress);
   const userActivity = new UserActivity({
-    userId: req._id,
+    userId: user._id,
     ipAddress: req.ip,
     uaString: req.headers['user-agent'],
 
@@ -93,15 +93,24 @@ router.get('/useractivity', async (req, res) => {
   // const response = await UserActivity.find({ loginDate: { $lt: dt } }).populate('users').exec();
   // // console.log(response);
   // return res.status(200).send(response);
- const aggre= await User.aggregate.lookup({
-    from: 'UserActivity', // or Races.collection.name
-    localField: '_id',
-    foreignField: '_id',
-    as: 'agg',
-  });
-  res.send(aggre)
-  console.log(`arrgreee ${aggre}`);
+  // const aggre = await User.aggregate.lookup({
+  //   from: 'UserActivity', // or Races.collection.name
+  //   localField: '_id',
+  //   foreignField: '_id',
+  //   as: 'agg',
+  // });
+  // res.send(aggre);
+  // console.log(`arrgreee ${agg}`);
+
+
+  const aggregate = await User.aggregate([{
+    $lookup: {
+      from: 'useractivity', localField: '_id', foreignField: 'userId', as: 'fromItems',
+    },
+  }]).exec();
+  console.log(aggregate);
 });
+
 
 router.get('/dashboard/:id', async (req, res) => {
   const user = await User.find({ _id: req.params.id });
