@@ -30,7 +30,7 @@ app.use((req, res, next) => {
 
 // Handling errors
 app.use((err, req, res, next) => {
-  res.status(err.status || 500);
+  res.status(err.status || 5000);
   res.send(err.message);
   next();
 });
