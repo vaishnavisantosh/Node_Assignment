@@ -83,7 +83,10 @@ exports.showAlluser = async (req, res) => {
 };
 
 exports.showParticularuser = async (req, res) => {
-  const user = await User.find({ _id: req.params.id });
+  const token = req.headers.authorization;
+  if (!token) return res.status(401).send('Access denied');
+  const decodedToken = jwt.verify(req.headers.authorization, process.env.TOKEN_SECRET);
+  const user = await User.find({ _id: decodedToken._id });
   try {
     res.status(200).send(user);
   } catch (error) {
@@ -91,7 +94,10 @@ exports.showParticularuser = async (req, res) => {
   }
 };
 exports.update = async (req, res) => {
-  await User.findOneAndUpdate({ _id: req.params.id }, { $set: { firstName: req.body.firstName } }, { new: true }, (err, updatedObeject) => {
+  const token = req.headers.authorization;
+  if (!token) return res.status(401).send('Access denied');
+  const decodedToken = jwt.verify(req.headers.authorization, process.env.TOKEN_SECRET);
+  await User.findOneAndUpdate({ _id: decodedToken._id }, { $set: { firstName: req.body.firstName } }, { new: true }, (err, updatedObeject) => {
     try {
       res.status(200).send('updated successfully!');
     } catch (error) {
