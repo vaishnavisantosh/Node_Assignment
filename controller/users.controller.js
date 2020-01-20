@@ -112,14 +112,10 @@ exports.update = async (req, res) => {
 };
 
 exports.userActivity = async (req, res) => {
-  const activeUser = await User.aggregate([{
-    $lookup: {
-      from: 'useractivity', localField: '_id', foreignField: 'userId', as: 'fromItems',
-    },
-  }]).exec();
-  try {
-    res.send(activeUser);
-  } catch (err) {
-    res.send('somthing went wrong!');
-  }
+  const date = new Date();
+  const dt = date.setDate(date.getDate() - process.env.INACTIVEDAYS);
+  console.log(dt);
+  const response = await UserActivity.find({ loginDate: { $lt: dt } }).populate('users').exec();
+  console.log(response);
+  return res.status(200).send(response);
 };
