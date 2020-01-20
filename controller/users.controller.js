@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable no-underscore-dangle */
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
@@ -8,14 +9,15 @@ import validator from '../lib/validator';
 
 dotenv.config({ path: './.env' });
 
-// const userController = {};
-
 exports.signUp = async (req, res) => {
   const { error } = validator.registrationValidation(req.body);
-  console.log(req.body);
-  const emailExists = await User.findOne({ email: req.body.email });
-  if (emailExists) return res.status(400).send('email already exists!!');
-  if (error) return res.status(400).send(error.details[0].message);
+  await User.findOne({ email: req.body.email });
+  try {
+    res.send('email already exists!!');
+  } catch (err) {
+    res.status(400).send(error.details[0].message);
+  }
+
   const salt = bcrypt.genSaltSync(10);
   const encryptedPass = bcrypt.hashSync(req.body.password, salt);
   const user = new User({
@@ -24,8 +26,9 @@ exports.signUp = async (req, res) => {
     email: req.body.email,
     password: encryptedPass,
   });
+
+  await user.save();
   try {
-    const savedUser = await user.save();
     res.status(200).send('login Successful');
   } catch (err) {
     res.status(400).send(err);
@@ -34,8 +37,7 @@ exports.signUp = async (req, res) => {
 
 exports.signin = async (req, res) => {
   let isAdmin;
-  const { error } =validator.loginValidation(req.body);
-  console.log(req.body);
+  const { error } = validator.loginValidation(req.body);
   if (error) return res.status(400).send(error.details[0].message);
   const user = await User.findOne({ email: req.body.email });
   if (!user) return res.status(400).send('email not found');
@@ -46,17 +48,15 @@ exports.signin = async (req, res) => {
   } else {
     isAdmin = false;
   }
-  console.log(req.headers);
-  console.log(req.connection.remoteAddress);
   const userActivity = new UserActivity({
     userId: user._id,
     ipAddress: req.ip,
     uaString: req.headers['user-agent'],
 
   });
+  await userActivity.save();
   try {
-    const savedActivity = await userActivity.save();
-    res.send(savedActivity);
+    res.send('logged in!');
   } catch (err) {
     res.status(400).send(err);
   }
@@ -76,9 +76,7 @@ exports.showAlluser = async (req, res) => {
     } else {
       users = await User.find({ _id: decodedToken._id });
     }
-
     res.status(200).send(users);
-    console.log(decodedToken);
   } catch (err) {
     return res.send('invalid Token');
   }
@@ -86,16 +84,18 @@ exports.showAlluser = async (req, res) => {
 
 exports.showParticularuser = async (req, res) => {
   const user = await User.find({ _id: req.params.id });
-  res.status(200).send(user);
+  try {
+    res.status(200).send(user);
+  } catch (error) {
+    res.status(400).send('something went wrong');
+  }
 };
-
 exports.update = async (req, res) => {
-  const a = await User.findOneAndUpdate({ _id: req.params.id }, { $set: { firstName: req.body.firstName } }, { new: true }, (err, updatedObeject) => {
-    if (err) {
-      console.log('error occured!!!!');
-    } else {
-      console.log(updatedObeject);
-      res.status(200).send(updatedObeject);
+  await User.findOneAndUpdate({ _id: req.params.id }, { $set: { firstName: req.body.firstName } }, { new: true }, (err, updatedObeject) => {
+    try {
+      res.status(200).send('updated successfully!');
+    } catch (error) {
+      res.status(400).send('unable to update');
     }
   });
 };
