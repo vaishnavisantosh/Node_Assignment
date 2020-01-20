@@ -99,3 +99,16 @@ exports.update = async (req, res) => {
     }
   });
 };
+
+exports.userActivity = async (req, res) => {
+  const activeUser = await User.aggregate([{
+    $lookup: {
+      from: 'useractivity', localField: '_id', foreignField: 'userId', as: 'fromItems',
+    },
+  }]).exec();
+  try {
+    res.send(activeUser);
+  } catch (err) {
+    res.send('somthing went wrong!');
+  }
+};
