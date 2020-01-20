@@ -8,10 +8,11 @@ const auth = (req, res, next) => {
     const verfied = jwt.verify(token, process.env.TOKEN_SECRET);
     req.user = verfied;
     next();
+    return verfied;
   } catch (err) {
     return res.status(400).send('invalid Token');
   }
-  return res;
-};
+  
+}
 
 module.exports = auth;

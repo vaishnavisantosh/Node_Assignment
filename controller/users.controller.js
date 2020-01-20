@@ -1,3 +1,4 @@
+/* eslint-disable import/named */
 /* eslint-disable max-len */
 /* eslint-disable no-underscore-dangle */
 import jwt from 'jsonwebtoken';
@@ -5,12 +6,16 @@ import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
 import User from '../model/User.model';
 import UserActivity from '../model/UserActivity.model';
-import validator from '../lib/validator';
+// import validator from '../lib/validator';
+import { loginValidation, registrationValidation } from '../lib/validator';
 
 dotenv.config({ path: './.env' });
 
 exports.signUp = async (req, res) => {
-  const { error } = validator.registrationValidation(req.body);
+  const { error } = registrationValidation(req.body);
+  if (error) {
+    return res.send(error.details[0].message);
+  }
   await User.findOne({ email: req.body.email });
   try {
     res.send('email already exists!!');
@@ -29,7 +34,7 @@ exports.signUp = async (req, res) => {
 
   await user.save();
   try {
-    res.status(200).send('login Successful');
+    res.status(200).send('registration Successful');
   } catch (err) {
     res.status(400).send(err);
   }
@@ -37,7 +42,7 @@ exports.signUp = async (req, res) => {
 
 exports.signin = async (req, res) => {
   let isAdmin;
-  const { error } = validator.loginValidation(req.body);
+  const { error } = loginValidation(req.body);
   if (error) return res.status(400).send(error.details[0].message);
   const user = await User.findOne({ email: req.body.email });
   if (!user) return res.status(400).send('email not found');
