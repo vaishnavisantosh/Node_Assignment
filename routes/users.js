@@ -1,23 +1,18 @@
-/* eslint-disable import/named */
+
 /* eslint-disable no-underscore-dangle */
-import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
-import bcrypt from 'bcrypt';
 import express from 'express';
 import User from '../model/User.model';
-import UserActivity from '../model/UserActivity.model';
-import controller from '../controller/users.controller';
-// const express = require('express');
+import controllers from '../controller/users.controller';
 
 const router = express.Router();
 dotenv.config({ path: './.env' });
 
-router.post('/register', controller.signup);
-router.post('/login', controller.signin );
-router.get('/dashboard',controller.showAlluser );
-router.get('/dashboard/:id', controller.showParticularuser);
-router.put('/users/:id',controller.update);
-
+router.post('/register', controllers.signUp);
+router.post('/login', controllers.signin);
+router.get('/dashboard', controllers.showAlluser);
+router.get('/dashboard/:id', controllers.showParticularuser);
+router.put('/users/:id', controllers.update);
 
 
 router.get('/useractivity', async (req, res) => {

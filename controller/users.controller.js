@@ -1,17 +1,17 @@
+/* eslint-disable no-underscore-dangle */
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
 import User from '../model/User.model';
 import UserActivity from '../model/UserActivity.model';
-import { registrationValidation, loginValidation } from '../lib/validator';
+import validator from '../lib/validator';
 
 dotenv.config({ path: './.env' });
 
-const userController = {};
+// const userController = {};
 
-userController.signup= async(req, res)=>{
-
-    const { error } = registrationValidation(req.body);
+exports.signUp = async (req, res) => {
+  const { error } = validator.registrationValidation(req.body);
   console.log(req.body);
   const emailExists = await User.findOne({ email: req.body.email });
   if (emailExists) return res.status(400).send('email already exists!!');
@@ -26,17 +26,15 @@ userController.signup= async(req, res)=>{
   });
   try {
     const savedUser = await user.save();
-    res.send(savedUser);
+    res.status(200).send('login Successful');
   } catch (err) {
     res.status(400).send(err);
   }
-}
+};
 
-
-
-userController.signin= async(req,res)=>{
-    let isAdmin;
-  const { error } = loginValidation(req.body);
+exports.signin = async (req, res) => {
+  let isAdmin;
+  const { error } =validator.loginValidation(req.body);
   console.log(req.body);
   if (error) return res.status(400).send(error.details[0].message);
   const user = await User.findOne({ email: req.body.email });
@@ -64,11 +62,11 @@ userController.signin= async(req,res)=>{
   }
   const token = jwt.sign({ _id: user._id, isAdmin }, process.env.TOKEN_SECRET);
   res.header('authentication-token', token).send('logged in!!');
-}
+};
 
 
-userController.showAlluser=async(req,res)=>{
-    let users;
+exports.showAlluser = async (req, res) => {
+  let users;
   const token = req.headers.authorization;
   if (!token) return res.status(401).send('Access denied');
   try {
@@ -84,14 +82,14 @@ userController.showAlluser=async(req,res)=>{
   } catch (err) {
     return res.send('invalid Token');
   }
-}
+};
 
-userController.showParticularuser=async(req,res)=>{
+exports.showParticularuser = async (req, res) => {
   const user = await User.find({ _id: req.params.id });
   res.status(200).send(user);
-}
+};
 
-userController.update=async(req,res)=>{
+exports.update = async (req, res) => {
   const a = await User.findOneAndUpdate({ _id: req.params.id }, { $set: { firstName: req.body.firstName } }, { new: true }, (err, updatedObeject) => {
     if (err) {
       console.log('error occured!!!!');
@@ -100,17 +98,4 @@ userController.update=async(req,res)=>{
       res.status(200).send(updatedObeject);
     }
   });
-}
-
-
-module.exports = {
-    signup: userController.signup,
-    signin: userController.signin,
-    showAlluser: userController.showAlluser,
-    showParticularuser: userController.show,
-    update: userController.update,
-    inactiveUsers: userController.inactiveUsers
-}
-
-
-
+};
