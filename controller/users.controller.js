@@ -117,5 +117,5 @@ exports.userActivity = async (req, res) => {
   console.log(dt);
   const response = await UserActivity.find({ loginDate: { $lt: dt } }).populate('users').exec();
   console.log(response);
-  return res.status(200).send(response);
+  return res.status(200);
 };
